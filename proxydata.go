@@ -33,6 +33,10 @@ func (p *ProxyData) GetDest(dev string) string {
 	p.mapm.Lock()
 	dest := p.DevToDest[dev]
 	p.mapm.Unlock()
+
+	if dest == "" {
+		dest = p.Default
+	}
 	return dest
 }
 

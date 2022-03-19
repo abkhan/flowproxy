@@ -52,9 +52,10 @@ func reader(pxy *Proxy) {
 			continue
 		}
 		// find destination for this client
-		log.Print("Destination:" + cliaddr.IP.String())
+		log.Print("ClientIP:" + cliaddr.IP.String())
 
 		destip := pxy.proxyd.GetDest(cliaddr.IP.String())
+		log.Print("Destination:" + destip)
 		pxy.pmut.Lock()
 		conp := pxy.cmap[destip]
 		pxy.pmut.Unlock()
@@ -120,7 +121,7 @@ func sender(c *Connection) {
 		// Relay it to client
 		_, err := c.ServerConn.Write(data)
 		if err != nil {
-			log.Printf("Error sending to dest [%+v]: %+v", c.ServerConn, err)
+			log.Printf("Error sending to dest [%+v]: %+v", *c.ServerConn, err)
 		}
 	}
 }
