@@ -33,7 +33,7 @@ func StartProxy(pd *ProxyData, port int) (*Proxy, error) {
 	if err != nil {
 		return nil, err
 	}
-	pxy := &Proxy{readConn: pudp, proxyd: pd, port: port}
+	pxy := &Proxy{readConn: pudp, proxyd: pd, port: port, cmap: map[string]*Connection{}}
 	log.Printf("Proxy reading on port %d\n", port)
 
 	go reader(pxy)
@@ -52,12 +52,15 @@ func reader(pxy *Proxy) {
 			continue
 		}
 		// find destination for this client
+		log.Print("Destination:" + cliaddr.IP.String())
+
 		destip := pxy.proxyd.GetDest(cliaddr.IP.String())
 		pxy.pmut.Lock()
 		conp := pxy.cmap[destip]
 		pxy.pmut.Unlock()
 
 		if conp == nil {
+			log.Printf("New Connection: %s", destip)
 			daddr, err := net.ResolveUDPAddr("udp", destip)
 			if err != nil {
 				log.Printf("resolve [%s] err: %+v", destip, err)
